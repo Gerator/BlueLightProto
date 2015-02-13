@@ -64,10 +64,10 @@ public class BlueLightProtoActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.e(TAG, "OnCreate1" );
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blue_light_proto);
-        Log.e(TAG, "OnCreate" );
-
 
         togglebutton = (ToggleButton)findViewById(R.id.toggleButton);
         listview = (ListView)findViewById(R.id.listView);
@@ -75,16 +75,18 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         btnOff = (Button)findViewById(R.id.OffBtn);
 
         btnOn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        sendData("1");
-                        toast("You have clicked ON");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
-                    }
+            @Override
+            public void onClick(View v) {
+                Log.e(TAG, "Button On Pressed!");
+                sendData("1");
+                toast("You have clicked ON");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
+            }
         });
 
         btnOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.e(TAG, "Button Off Pressed!");
                 sendData("2");
                 toast("You have clicked OFF");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
             }
@@ -101,6 +103,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Log.e(TAG, "onItemClick");
                         String itemValue = (String) listview.getItemAtPosition(position);
                         String MAC = itemValue.substring(itemValue.length() - 17);
                         BluetoothDevice BTDvc = BTAdapter.getRemoteDevice(MAC);
@@ -110,14 +113,20 @@ public class BlueLightProtoActivity extends ActionBarActivity {
                     }
                 }
         );
+
+        Log.e(TAG, "OnCreate2" );
     }
 
     public void onToggleClicked(View view) {
-        adapter.clear();
+
+        Log.e(TAG, "onToggleClicked1");
+        //adapter.clear();
         ToggleButton togglebutton = (ToggleButton) view;
+        Log.e(TAG, "onToggleClicked2");
 
         if(togglebutton.isChecked()) {
             if(!BTAdapter.isEnabled()) {
+                Log.e(TAG, "onToggleClicked, request enable BT");
                 Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBluetoothIntent, EnableBT);
             } else {
@@ -130,6 +139,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
                 A.start();
             }
         } else {
+            Log.e(TAG, "onToggleClicked, disabling BT");
             BTAdapter.disable();
             adapter.clear();
             toast("Your device is now disabled");
@@ -139,6 +149,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent Data) {
         if(requestCode == EnableBT) {
             if(resultCode == Activity.RESULT_OK) {
+                Log.e(TAG, "onActivityResult, BT enabled");
                 toast("Bluetooth has been enabled \n Scanning for Remote Bluetooth devices...");
                 addQuery();
                 discoverDevices();
@@ -147,11 +158,13 @@ public class BlueLightProtoActivity extends ActionBarActivity {
                 AcceptThread A = new AcceptThread();
                 A.start();
             } else {
-                toast("Bluetooth failed to be enabled");
+                Log.e(TAG, "onActivityResult, BT fail to enable");
+                toast("Bluetooth failed to enable");
                 togglebutton.setChecked(false);
             }
         } else if(requestCode == DiscoverBT) {
             if(resultCode == DiscDur) {
+                Log.e(TAG, "onActivityResult, device discoverable");
                 toast("Your device is now discoverable for " + DiscDur + "seconds");
             } else {
                 toast("Fail to enable discoverability");
@@ -160,15 +173,23 @@ public class BlueLightProtoActivity extends ActionBarActivity {
     }
 
     public void addQuery() {
+        Log.e(TAG, "addQuery1");
         Set<BluetoothDevice> pairedDevices = BTAdapter.getBondedDevices();
+        Log.e(TAG, "addQuery2" );
         if(pairedDevices.size() > 0) {
+            Log.e(TAG, "addQuery3" );
+            int n = 4;
             for(BluetoothDevice device : pairedDevices) {
+                Log.e(TAG, "addQuery" + n + "......." + device.getName() + "......." );
                 adapter.add(device.getName() + "\n" + device.getAddress());
+                Log.e(TAG, "addQueryX" );
+                n++;
             }
         }
     }
 
     public void discoverDevices(){
+        Log.e(TAG, "discoverDevices");
         if (BTAdapter.startDiscovery()) {
             toast("Discovering other bluetooth devices");
         } else {
@@ -177,7 +198,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
     }
 
     public void makeDiscoverable() {
-        // Make local device discoverable
+        Log.e(TAG, "makeDiscoverable");
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DiscDur);
         startActivityForResult(discoverableIntent, DiscoverBT);
@@ -330,6 +351,42 @@ public class BlueLightProtoActivity extends ActionBarActivity {
                     }
                 });
         builder.create().show();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "onStop");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.i(TAG, "onRestart");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy");
     }
 
     @Override
