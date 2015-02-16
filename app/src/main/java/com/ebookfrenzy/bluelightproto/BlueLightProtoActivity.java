@@ -44,7 +44,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
     private static final int EnableBT = 1;
     private static final int DiscoverBT = 2;
     private static final int DiscDur = 300;
-    private final UUID SecureUUID = UUID.fromString("3debad23-01b7-4c71-8710-ffb4bfbf0b36");
+    private final UUID SecureUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //why must this UUID?
     private final UUID UnsecureUUID = UUID.fromString("fde1b057-5906-4d22-88c5-a0412a0c758e");
 
     private final BroadcastReceiver BcRcv = new BroadcastReceiver() {
@@ -79,6 +79,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
             public void onClick(View v) {
                 Log.i(TAG, "Button On Pressed!");
                 sendData("1");
+                Log.i(TAG, "Data sent");
                 toast("You have clicked ON");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
             }
         });
@@ -222,7 +223,6 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         }
 
         public void run() {
-
             //TestThread("Inside AcceptThread run() 1");
 
             BluetoothSocket BTSckt;
@@ -276,27 +276,25 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         }
 
         public void run() {
-
-            //TestThread("Inside ConnectThread run() 1");
-
+            TestThread("Inside ConnectThread run() 1");
             BTAdapter.cancelDiscovery();
-
-            //TestThread("Inside ConnectThread run() A");
-
+            TestThread("Inside ConnectThread run() A");
             try {
-                //TestThread("Inside ConnectThread run() B");
-
+                TestThread("Inside ConnectThread run() B");
                 BTSckt.connect();
+                TestThread("Inside ConnectThread run() C");
             } catch (IOException connectException) {
                 try {
+                    TestThread("Inside ConnectThread run() D");
                     BTSckt.close();
+                    TestThread("Inside ConnectThread run() E");
                 } catch (IOException closeException) {}
-                //TestThread("Inside ConnectThread run() C");
+                TestThread("Inside ConnectThread run() F");
                 return;
             }
             //manageConnectedSocket(BTSckt)
 
-            //TestThread("Inside ConnectThread run() 2");
+            TestThread("Inside ConnectThread run() 2");
         }
 
         public void cancel() {
@@ -313,10 +311,11 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         Log.i(TAG, "...Sending data: " + message + "...");
 
         try {
+            Log.i(TAG, "Before Write Out");
             Out.write(msg);
+            Log.i(TAG, "After Write Out");
         } catch (IOException e) {
-            String stat = "An exception occurred during write: " + e.getMessage();
-            toast(stat);
+            Log.i(TAG, String.valueOf(e));
         }
     }
 
