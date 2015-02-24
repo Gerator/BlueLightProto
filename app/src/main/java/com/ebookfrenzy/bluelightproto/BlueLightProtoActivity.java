@@ -21,8 +21,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +42,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
     private ArrayAdapter adapter;
     private ListView listview;
     private ToggleButton togglebutton;
-    private Button btnOn, btnOff;
+    private BluetoothSocket BTSckt = null;
     private OutputStream Out = null;
     private InputStream In = null;
     private static final int EnableBT = 1;
@@ -46,6 +50,8 @@ public class BlueLightProtoActivity extends ActionBarActivity {
     private static final int DiscDur = 300;
     private final UUID SecureUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //why must this UUID?
     private final UUID UnsecureUUID = UUID.fromString("fde1b057-5906-4d22-88c5-a0412a0c758e");
+
+    //TextView statText = (TextView)findViewById(R.id.StatText);
 
     private final BroadcastReceiver BcRcv = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -57,6 +63,11 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         }
     };
 
+    /*
+    IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+    registerReceiver(mReceiver, filter);
+    */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -66,8 +77,11 @@ public class BlueLightProtoActivity extends ActionBarActivity {
 
         togglebutton = (ToggleButton)findViewById(R.id.toggleButton);
         listview = (ListView)findViewById(R.id.listView);
-        btnOn = (Button)findViewById(R.id.OnBtn);
-        btnOff = (Button)findViewById(R.id.OffBtn);
+        Button btnOn = (Button)findViewById(R.id.OnBtn);
+        Button btnOff = (Button)findViewById(R.id.OffBtn);
+        SeekBar seekbar = (SeekBar)findViewById(R.id.seekBar);
+        TextView intText = (TextView)findViewById(R.id.IntText);
+        intText.setText(seekbar.getProgress() + " / " + seekbar.getMax());
 
         btnOn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +101,33 @@ public class BlueLightProtoActivity extends ActionBarActivity {
                 toast("You have clicked OFF");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
             }
         });
+
+        seekbar.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+
+                    TextView intText = (TextView)findViewById(R.id.IntText);
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        int x = 1;
+                        int i = 0;
+                        while(fromUser && i<x) {
+                            intText.setText(seekBar.getProgress() + "/" + seekBar.getMax());
+                            i++;
+                        }
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                }
+        );
 
         BTAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -218,36 +259,33 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         }
 
         public void run() {
-            //TestThread("Inside AcceptThread run() 1");
-
+            TestThread("Inside AcceptThread run() 1");
             BluetoothSocket BTSckt;
-
-            //TestThread("Inside AcceptThread run() A");
-
+            TestThread("Inside AcceptThread run() A");
             while (true) {
                 try {
-                    //TestThread("Inside AcceptThread run() B");
+                    TestThread("Inside AcceptThread run() B");
                     BTSckt = BTSvrSckt.accept();
+                    TestThread("Inside AcceptThread run() C");
                 } catch (IOException e) {
                     e.printStackTrace();
-                    //TestThread("Inside AcceptThread run() C");
+                    TestThread("Inside AcceptThread run() D");
                     break;
                 }
                 if (BTSckt != null) {
                     //manageConnectedSocket(BTSckt); //Do work to manage the connection in a separate thread
-                    //TestThread("Inside AcceptThread run() D");
+                    TestThread("Inside AcceptThread run() E");
 
                     try {
-                        //TestThread("Inside AcceptThread run() E");
-
+                        TestThread("Inside AcceptThread run() F");
                         BTSvrSckt.close();
                     } catch (IOException e) {
+                        TestThread("Inside AcceptThread run() G");
                         break;
                     }
                 }
             }
-
-            //TestThread("Inside AcceptThread run() 2");
+            TestThread("Inside AcceptThread run() 2");
         }
 
         public void cancel() {
@@ -259,7 +297,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
 
     //Connect as Client
     private class ConnectThread extends Thread {
-        private final BluetoothSocket BTSckt;
+        //private final BluetoothSocket BTSckt;
 
         public ConnectThread(BluetoothDevice device) {
             BluetoothSocket temp = null;
@@ -287,6 +325,10 @@ public class BlueLightProtoActivity extends ActionBarActivity {
                 TestThread("Inside ConnectThread run() F");
                 return;
             }
+
+            try{
+                Out = BTSckt.getOutputStream();
+            } catch (IOException e) {}
             //manageConnectedSocket(BTSckt)
 
             TestThread("Inside ConnectThread run() 2");
@@ -310,6 +352,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
             Out.write(msg);
             Log.i(TAG, "After Write Out");
         } catch (IOException e) {
+            Log.i(TAG, "Fail to write");
             Log.i(TAG, String.valueOf(e));
         }
     }
@@ -396,18 +439,41 @@ public class BlueLightProtoActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume before register");
+        //Log.i(TAG, "onResume before register");
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         this.registerReceiver(BcRcv, filter);
-        Log.i(TAG, "onResume after register");
+        //Log.i(TAG, "onResume after register");
+
+        //Log.i(TAG, "onResume before getOutputStream");
+        /*while (true) {
+            if (BTSckt != null) {
+                try {
+                    Out = BTSckt.getOutputStream();
+                } catch (IOException e) {
+                    Log.i(TAG, "onResume fail to get OutputStream");
+                }
+                Log.i(TAG, "onResume after getOutputStream");
+            } else {
+                Log.i(TAG, "onResume BTSckt is null");
+                break;
+            }
+        }*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause before unregister");
+        //Log.i(TAG, "onPause before unregister");
         this.unregisterReceiver(BcRcv);
-        Log.i(TAG, "onPause after unregister");
+        //Log.i(TAG, "onPause after unregister");
+
+        Log.i(TAG, "onPause before flush");
+        if (Out != null) {
+            try{
+                Out.flush();
+            } catch (IOException e) {}
+        }
+        Log.i(TAG, "onPause after flush");
     }
 
     @Override
