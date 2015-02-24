@@ -57,11 +57,6 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         }
     };
 
-    /*
-    IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-    registerReceiver(mReceiver, filter);
-    */
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
