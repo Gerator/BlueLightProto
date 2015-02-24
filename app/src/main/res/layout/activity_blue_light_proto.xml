@@ -41,8 +41,44 @@
         android:layout_height="wrap_content"
         android:id="@+id/listView"
         android:layout_centerHorizontal="true"
+        android:layout_below="@+id/toggleButton"
+        android:layout_above="@+id/seekBar" />
+
+    <SeekBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
         android:layout_above="@+id/OnBtn"
-        android:layout_below="@+id/toggleButton" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:max="100" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Status"
+        android:id="@+id/StatText"
+        android:layout_below="@+id/seekBar"
+        android:layout_toRightOf="@+id/OnBtn"
+        android:layout_toLeftOf="@+id/OffBtn"
+        android:layout_toStartOf="@+id/OffBtn"
+        android:gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Power"
+        android:id="@+id/IntText"
+        android:gravity="center_horizontal"
+        android:layout_below="@+id/StatText"
+        android:layout_marginTop="10dp"
+        android:layout_toLeftOf="@+id/OffBtn"
+        android:layout_alignLeft="@+id/StatText"
+        android:layout_alignStart="@+id/StatText" />
 
 
 </RelativeLayout>
