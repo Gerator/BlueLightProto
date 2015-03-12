@@ -43,6 +43,7 @@ public class BlueLightProtoActivity extends ActionBarActivity {
     private ListView listview;
     private ToggleButton togglebutton;
     private BluetoothSocket BTSckt = null;
+    private Boolean stat = false;
     private OutputStream Out = null;
     private InputStream In = null;
     private static final int EnableBT = 1;
@@ -79,26 +80,39 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         listview = (ListView)findViewById(R.id.listView);
         Button btnOn = (Button)findViewById(R.id.OnBtn);
         Button btnOff = (Button)findViewById(R.id.OffBtn);
-        SeekBar seekbar = (SeekBar)findViewById(R.id.seekBar);
+        final SeekBar seekbar = (SeekBar)findViewById(R.id.seekBar);
         TextView intText = (TextView)findViewById(R.id.IntText);
         intText.setText(seekbar.getProgress() + " / " + seekbar.getMax());
 
         btnOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "Button On Pressed!");
-                sendData("1");
-                Log.i(TAG, "Data sent");
-                toast("You have clicked ON");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
+                if(BTSckt!=null) {
+                    stat = true;
+                    Log.i(TAG, "Button On Pressed!");
+                    sendData("1");
+                    Log.i(TAG, "Data sent");
+                    sendData(String.valueOf(seekbar.getProgress()));
+                    toast("You have clicked ON");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
+                } else {
+                    toast("Can't Turn on! \n No Device Connected yet!");
+                }
+
             }
         });
 
         btnOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "Button Off Pressed!");
-                sendData("2");
-                toast("You have clicked OFF");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
+                if(BTSckt!=null) {
+                    stat = false;
+                    Log.i(TAG, "Button Off Pressed!");
+                    sendData("2");
+                    Log.i(TAG, "Data sent");
+                    toast("You have clicked OFF");   //MUST FIND WAY TO GET FEEDBACK FROM ARDUINO!!!!
+                } else {
+                    toast("Can't turn off! \n No Device Connected yet!");
+                }
             }
         });
 
@@ -113,6 +127,9 @@ public class BlueLightProtoActivity extends ActionBarActivity {
                         int i = 0;
                         while(fromUser && i<x) {
                             intText.setText(seekBar.getProgress() + "/" + seekBar.getMax());
+                            if(BTSckt!=null && stat){
+                                sendData(String.valueOf(seekBar.getProgress()));
+                            }
                             i++;
                         }
                     }
@@ -124,7 +141,8 @@ public class BlueLightProtoActivity extends ActionBarActivity {
 
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar) {
-
+                        if(BTSckt!=null)
+                            sendData(String.valueOf(seekBar.getProgress()));
                     }
                 }
         );
@@ -159,7 +177,6 @@ public class BlueLightProtoActivity extends ActionBarActivity {
         //adapter.add("just a test");
         Log.i(TAG, "OnCreate2" );
     }
-
     public void onToggleClicked(View view) {
 
         Log.i(TAG, "onToggleClicked1");

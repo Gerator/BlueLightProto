@@ -7,12 +7,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/toggleButton"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:textOn="Bluetooth On"
         android:textOff="Bluetooth Off"
-        android:onClick="onToggleClicked" />
+        android:onClick="onToggleClicked"
+        android:layout_below="@+id/FeedBackText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -79,6 +79,22 @@
         android:layout_toLeftOf="@+id/OffBtn"
         android:layout_alignLeft="@+id/StatText"
         android:layout_alignStart="@+id/StatText" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/FeedBackText"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="20sp"
+        android:text="test"
+        android:gravity="center_vertical|center_horizontal"
+        android:textAlignment="gravity"
+        android:textColor="@android:color/black"
+        android:background="#ff33b5e5"
+        android:padding="5dp"
+        android:textStyle="bold"
+        android:layout_margin="5dp" />
 
 
 </RelativeLayout>
